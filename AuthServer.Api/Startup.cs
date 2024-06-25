@@ -1,3 +1,4 @@
+using AuthServer.Core.Configuration;
 using AuthServer.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -5,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using SharedLibrary.Configurations;
+using System.Collections.Generic;
 
 namespace AuthServer.Api
 {
@@ -20,6 +23,8 @@ namespace AuthServer.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<CustomTokenOptions>(Configuration.GetSection("TokenOption"));
+            services.Configure<List<Client>>(Configuration.GetSection("Clients"));
 
             services.AddControllers();
 
