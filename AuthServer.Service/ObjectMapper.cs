@@ -6,7 +6,7 @@ namespace AuthServer.Service
     /// <summary>
     /// Provides a singleton instance of IMapper.
     /// </summary>
-    public static class ObjectMapper 
+    public static class ObjectMapper
     {
         private static readonly Lazy<IMapper> mapper = new Lazy<IMapper>(() =>
         {

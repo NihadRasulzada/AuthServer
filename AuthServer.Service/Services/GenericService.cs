@@ -1,7 +1,6 @@
 ﻿using AuthServer.Core.Repositories;
 using AuthServer.Core.Services;
 using AuthServer.Core.UnitOfWork;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SharedLibrary.Dtos;
 using System;

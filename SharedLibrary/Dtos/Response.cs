@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace SharedLibrary.Dtos
 {
@@ -11,9 +6,9 @@ namespace SharedLibrary.Dtos
     {
         public T Data { get; private set; }
         public int StatusCode { get; private set; }
-        public ErrorDto Error { get;private set; }
+        public ErrorDto Error { get; private set; }
         [JsonIgnore]
-        public bool IsSuccessful { get;private set; }
+        public bool IsSuccessful { get; private set; }
 
         public static Response<T> Success(T data, int statusCode)
         {

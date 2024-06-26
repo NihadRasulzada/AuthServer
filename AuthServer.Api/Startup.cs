@@ -9,7 +9,6 @@ using AuthServer.Data.Repositories;
 using AuthServer.Service;
 using AuthServer.Service.Services;
 using AuthServer.Service.Servioces;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -19,9 +18,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using SharedLibrary.Configurations;
-using System;
+using SharedLibrary.Extensions;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace AuthServer.Api
 {
@@ -62,29 +60,8 @@ namespace AuthServer.Api
             services.Configure<CustomTokenOptions>(Configuration.GetSection("TokenOption"));
             services.Configure<List<Client>>(Configuration.GetSection("Clients"));
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                var tokenOptions = Configuration.GetSection("TokenOption").Get<CustomTokenOptions>();
-                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                {
-                    ValidIssuer = tokenOptions.Issuer,
-                    ValidAudience = tokenOptions.Audience[0],
-                    IssuerSigningKey = SignService.GetSymmetricSecurityKey(tokenOptions.SecurityKey),
-
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidateLifetime = true,
-
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
-
-
+            var tokenOptions = Configuration.GetSection("TokenOption").Get<CustomTokenOptions>();
+            services.AddCustomTokenAuth(tokenOptions);
 
             services.AddControllers();
 
