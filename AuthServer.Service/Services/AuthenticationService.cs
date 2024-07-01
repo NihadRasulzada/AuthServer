@@ -106,7 +106,7 @@ namespace AuthServer.Service.Services
 
             _genericRepository.Remove(userRefreshToken);
             await _unitOfWork.CommitAsync();
-            return Response<NoDataDto>.Success(204);
+            return Response<NoDataDto>.Success(200);
         }
     }
 }

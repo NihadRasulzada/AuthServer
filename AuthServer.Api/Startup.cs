@@ -20,6 +20,7 @@ using Microsoft.OpenApi.Models;
 using SharedLibrary.Configurations;
 using SharedLibrary.Extensions;
 using System.Collections.Generic;
+using FluentValidation.AspNetCore;
 
 namespace AuthServer.Api
 {
@@ -63,7 +64,12 @@ namespace AuthServer.Api
             var tokenOptions = Configuration.GetSection("TokenOption").Get<CustomTokenOptions>();
             services.AddCustomTokenAuth(tokenOptions);
 
-            services.AddControllers();
+            services.AddControllers().AddFluentValidation(options =>
+            {
+                options.RegisterValidatorsFromAssemblyContaining<Startup>();
+            });
+
+            services.UseCustomValidationResponse();
 
             services.AddAutoMapper(typeof(MappingProfile));
 
@@ -82,6 +88,7 @@ namespace AuthServer.Api
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthServer.Api v1"));
             }
+            app.UseCustomException();
 
             app.UseHttpsRedirection();
 
