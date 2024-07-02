@@ -1,3 +1,5 @@
+using AuthServer.MiniApi1.Api.Requirements;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,11 +16,17 @@ builder.Services.Configure<CustomTokenOptions>(builder.Configuration.GetSection(
 var tokenOptions = builder.Configuration.GetSection("TokenOption").Get<CustomTokenOptions>();
 builder.Services.AddCustomTokenAuth(tokenOptions);
 
+builder.Services.AddSingleton<IAuthorizationHandler, BirthDayRequirementHandler>();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("BakuPolicy", policy =>
     {
         policy.RequireClaim("City", "Baku");
+    });
+
+    options.AddPolicy("AgePolicy", policy =>
+    {
+        policy.Requirements.Add(new BirthDateRequirement(18));
     });
 });
 

@@ -11,6 +11,7 @@ namespace AuthServer.MiniApi1.Api.Controllers
     public class StockController : ControllerBase
     {
         [Authorize(Roles = "Admin", Policy = "BakuPolicy")]
+        [Authorize(Policy = "AgePolicy")]
         [HttpGet]
         public IActionResult GetStock()
         {
