@@ -6,11 +6,11 @@ using System.Security.Claims;
 
 namespace AuthServer.MiniApi1.Api.Controllers
 {
-    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class StockController : ControllerBase
     {
+        [Authorize(Roles = "Admin", Policy = "BakuPolicy")]
         [HttpGet]
         public IActionResult GetStock()
         {
