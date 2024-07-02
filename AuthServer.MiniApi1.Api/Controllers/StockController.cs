@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace AuthServer.MiniApi1.Api.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class StockController : ControllerBase
@@ -15,7 +15,7 @@ namespace AuthServer.MiniApi1.Api.Controllers
         public IActionResult GetStock()
         {
             var userName = HttpContext.User.Identity.Name;
-            
+
 
             var userIdClaim = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
 

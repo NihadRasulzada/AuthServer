@@ -25,7 +25,7 @@ namespace SharedLibrary.Extensions
 
                         ErrorDto error = null;
 
-                        if(ex is CustomException)
+                        if (ex is CustomException)
                         {
                             error = new ErrorDto(ex.Message, true);
                         }

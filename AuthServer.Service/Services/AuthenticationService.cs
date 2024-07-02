@@ -18,13 +18,13 @@ namespace AuthServer.Service.Services
     public class AuthenticationService : IAuthenticationService
     {
         private readonly List<Client> _clients;
-        private readonly ITokenServices _tokenServices;
+        private readonly ITokenService _tokenServices;
         private readonly UserManager<UserApp> _userManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<UserRefreshToken> _genericRepository;
         public AuthenticationService(
             IOptions<List<Client>> options,
-            ITokenServices tokenServices,
+            ITokenService tokenServices,
             UserManager<UserApp> userManager,
             IUnitOfWork unitOfWork,
             IGenericRepository<UserRefreshToken> genericRepository)
@@ -51,7 +51,7 @@ namespace AuthServer.Service.Services
             {
                 return Response<TokenDto>.Fail("Email or password is wrong", 400, true);
             }
-            TokenDto tokenDto = _tokenServices.CreateToken(user);
+            TokenDto tokenDto = await _tokenServices.CreateTokenAsync(user);
             UserRefreshToken userRefreshToken = await _genericRepository.Where(u => u.UserId == user.Id).SingleOrDefaultAsync();
             if (userRefreshToken == null)
             {
@@ -89,7 +89,7 @@ namespace AuthServer.Service.Services
             {
                 return Response<TokenDto>.Fail("User not found", 404, true);
             }
-            TokenDto tokenDto = _tokenServices.CreateToken(user);
+            TokenDto tokenDto = await _tokenServices.CreateTokenAsync(user);
             userRefreshToken.Code = tokenDto.RefreshToken;
             userRefreshToken.Expiration = tokenDto.RefreshTokenExpiration;
             await _unitOfWork.CommitAsync();

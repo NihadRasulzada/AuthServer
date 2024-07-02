@@ -13,10 +13,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace AuthServer.Service.Servioces
 {
-    public class TokenService : ITokenServices
+    public class TokenService : ITokenService
     {
         private readonly UserManager<UserApp> _userManager;
         private readonly CustomTokenOptions _tokenOptions;
@@ -34,9 +35,15 @@ namespace AuthServer.Service.Servioces
             return Convert.ToBase64String(numberByte);
         }
 
-        private IEnumerable<Claim> GetClaim(UserApp userApp, List<String> audiences)
+        private async Task<IEnumerable<Claim>> GetClaimsAsync(UserApp userApp, List<String> audiences)
         {
-            var userList = new List<Claim>
+            // Null checks for safety
+            if (userApp == null) throw new ArgumentNullException(nameof(userApp));
+            if (audiences == null) throw new ArgumentNullException(nameof(audiences));
+
+            IList<string> userRoles = await _userManager.GetRolesAsync(userApp);
+
+            List<Claim> claimsList = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, userApp.Id),
                 new Claim(JwtRegisteredClaimNames.Email, userApp.Email),
@@ -44,9 +51,10 @@ namespace AuthServer.Service.Servioces
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            userList.AddRange(audiences.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x)));
+            claimsList.AddRange(audiences.Select(audience => new Claim(JwtRegisteredClaimNames.Aud, audience)));
+            claimsList.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-            return userList;
+            return claimsList;
         }
 
         private IEnumerable<Claim> GetClaimsByClient(Client client)
@@ -62,7 +70,7 @@ namespace AuthServer.Service.Servioces
             return claims;
         }
 
-        public TokenDto CreateToken(UserApp userApp)
+        public async Task<TokenDto> CreateTokenAsync(UserApp userApp)
         {
             var accessTokenExpiration = DateTime.Now.AddMinutes(_tokenOptions.AccessTokenExpiration);
             var refreshTokenExpiration = DateTime.Now.AddMinutes(_tokenOptions.RefreshTokenExpiration);
@@ -74,7 +82,7 @@ namespace AuthServer.Service.Servioces
                 issuer: _tokenOptions.Issuer,
                 expires: accessTokenExpiration,
                 notBefore: DateTime.Now,
-                claims: GetClaim(userApp, _tokenOptions.Audience),
+                claims: await GetClaimsAsync(userApp, _tokenOptions.Audience),
                 signingCredentials: signingCredentials
 
             );
