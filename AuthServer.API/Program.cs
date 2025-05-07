@@ -1,6 +1,8 @@
+using SharedLibrary.Configurations;
+
 var builder = WebApplication.CreateBuilder(args);
 
-
+builder.Services.Configure<CustomTokenOptions>(builder.Configuration.GetSection("TokenOption"));
 
 builder.Services.AddControllers();
 
