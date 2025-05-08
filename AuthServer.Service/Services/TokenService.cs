@@ -16,7 +16,8 @@ namespace AuthServer.Service.Services
     {
         readonly UserManager<UserApp> _userManager;
         readonly CustomTokenOptions _customTokenOptions;
-        public TokenService(UserManager<UserApp> userManager, IOptions<CustomTokenOptions> options)
+        public TokenService(UserManager<UserApp> userManager,
+            IOptions<CustomTokenOptions> options)
         {
             _userManager = userManager;
             _customTokenOptions = options.Value;
@@ -57,13 +58,23 @@ namespace AuthServer.Service.Services
 
         public TokenDto CreateToken(UserApp userApp)
         {
-            DateTime accessTokenExpiratin = DateTime.UtcNow.AddHours(4).AddMinutes(_customTokenOptions.AccessTokenExpiration);
-            DateTime refreshTokenExpiratin = DateTime.UtcNow.AddHours(4).AddMinutes(_customTokenOptions.RefreshTokenExpiration);
+            DateTime accessTokenExpiratin = DateTime.UtcNow
+                .AddHours(4)
+                .AddMinutes(_customTokenOptions.AccessTokenExpiration);
+            DateTime refreshTokenExpiratin = DateTime.UtcNow
+                .AddHours(4)
+                .AddMinutes(_customTokenOptions.RefreshTokenExpiration);
             SecurityKey securityKey = SignService.GetSymmetricSecurityKey(_customTokenOptions.SecurityKey);
 
-            SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha256Signature);
+            SigningCredentials credentials = new(securityKey,
+                SecurityAlgorithms.HmacSha256Signature);
 
-            JwtSecurityToken securityToken = new JwtSecurityToken(issuer: _customTokenOptions.Issuer, expires: accessTokenExpiratin, notBefore: DateTime.UtcNow.AddHours(4), claims: GetClaims(userApp, _customTokenOptions.Audience), signingCredentials: credentials);
+            JwtSecurityToken securityToken = new JwtSecurityToken(
+                issuer: _customTokenOptions.Issuer,
+                expires: accessTokenExpiratin,
+                notBefore: DateTime.UtcNow.AddHours(4),
+                claims: GetClaims(userApp, _customTokenOptions.Audience),
+                signingCredentials: credentials);
 
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
 
@@ -82,12 +93,20 @@ namespace AuthServer.Service.Services
 
         public ClientTokenDto CreateTokenByClient(Client client)
         {
-            DateTime accessTokenExpiratin = DateTime.UtcNow.AddHours(4).AddMinutes(_customTokenOptions.AccessTokenExpiration);
+            DateTime accessTokenExpiratin = DateTime.UtcNow
+                .AddHours(4)
+                .AddMinutes(_customTokenOptions.AccessTokenExpiration);
             SecurityKey securityKey = SignService.GetSymmetricSecurityKey(_customTokenOptions.SecurityKey);
 
-            SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha256Signature);
+            SigningCredentials credentials = new(securityKey,
+                SecurityAlgorithms.HmacSha256Signature);
 
-            JwtSecurityToken securityToken = new JwtSecurityToken(issuer: _customTokenOptions.Issuer, expires: accessTokenExpiratin, notBefore: DateTime.UtcNow.AddHours(4), claims: GetClaimsByClient(client), signingCredentials: credentials);
+            JwtSecurityToken securityToken = new JwtSecurityToken(
+                issuer: _customTokenOptions.Issuer,
+                expires: accessTokenExpiratin,
+                notBefore: DateTime.UtcNow.AddHours(4),
+                claims: GetClaimsByClient(client),
+                signingCredentials: credentials);
 
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
 
