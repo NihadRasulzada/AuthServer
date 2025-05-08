@@ -25,7 +25,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"), contextOption =>
     {
-        contextOption.MigrationsAssembly(nameof(AuthServer.Data));
+        contextOption.MigrationsAssembly("AuthServer.Data");
     });
 });
 
