@@ -33,12 +33,14 @@ namespace AuthServer.Service.Services
 
         private IEnumerable<Claim> GetClaims(UserApp userApp, List<string> audiences)
         {
+            //long unixTimestamp = ((DateTimeOffset)DateTime.UtcNow.AddHours(3)).ToUnixTimeSeconds();
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, userApp.Id),
                 new Claim(JwtRegisteredClaimNames.Email, userApp.Email),
                 new Claim(ClaimTypes.Name, userApp.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                //new Claim(JwtRegisteredClaimNames.Nbf, unixTimestamp.ToString())
             };
 
             claims.AddRange(audiences.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x)));
@@ -59,20 +61,19 @@ namespace AuthServer.Service.Services
         public TokenDto CreateToken(UserApp userApp)
         {
             DateTime accessTokenExpiratin = DateTime.UtcNow
-                .AddHours(4)
                 .AddMinutes(_customTokenOptions.AccessTokenExpiration);
             DateTime refreshTokenExpiratin = DateTime.UtcNow
-                .AddHours(4)
                 .AddMinutes(_customTokenOptions.RefreshTokenExpiration);
             SecurityKey securityKey = SignService.GetSymmetricSecurityKey(_customTokenOptions.SecurityKey);
 
             SigningCredentials credentials = new(securityKey,
                 SecurityAlgorithms.HmacSha256Signature);
 
+
             JwtSecurityToken securityToken = new JwtSecurityToken(
                 issuer: _customTokenOptions.Issuer,
                 expires: accessTokenExpiratin,
-                notBefore: DateTime.UtcNow.AddHours(4),
+                notBefore: DateTime.UtcNow,
                 claims: GetClaims(userApp, _customTokenOptions.Audience),
                 signingCredentials: credentials);
 
@@ -85,7 +86,7 @@ namespace AuthServer.Service.Services
                 AccessToken = token,
                 AccessTokenExpiration = accessTokenExpiratin,
                 RefreshTokenExpiration = refreshTokenExpiratin,
-                RefreshToken = CreateRefreshToken()
+                RefreshToken = CreateRefreshToken(),
             };
 
             return dto;
@@ -94,7 +95,6 @@ namespace AuthServer.Service.Services
         public ClientTokenDto CreateTokenByClient(Client client)
         {
             DateTime accessTokenExpiratin = DateTime.UtcNow
-                .AddHours(4)
                 .AddMinutes(_customTokenOptions.AccessTokenExpiration);
             SecurityKey securityKey = SignService.GetSymmetricSecurityKey(_customTokenOptions.SecurityKey);
 
@@ -104,7 +104,7 @@ namespace AuthServer.Service.Services
             JwtSecurityToken securityToken = new JwtSecurityToken(
                 issuer: _customTokenOptions.Issuer,
                 expires: accessTokenExpiratin,
-                notBefore: DateTime.UtcNow.AddHours(4),
+                notBefore: DateTime.UtcNow,
                 claims: GetClaimsByClient(client),
                 signingCredentials: credentials);
 
