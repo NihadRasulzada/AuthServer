@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.Internal;
 
 namespace AuthServer.Service
 {
@@ -13,6 +14,7 @@ namespace AuthServer.Service
         {
             MapperConfiguration mapper = new MapperConfiguration(configuration =>
             {
+                configuration.Internal().MethodMappingEnabled = false;
                 configuration.AddProfile<DtoMapper>();
             });
             return mapper.CreateMapper();

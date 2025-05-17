@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
+using MiniApp1.API.Requirements;
 using SharedLibrary.Configurations;
 using SharedLibrary.Extensions;
 
@@ -8,12 +10,25 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Services.AddSingleton<IAuthorizationHandler, BirthDayRequirementHandler>();
 
 
 builder.Services.Configure<CustomTokenOptions>(builder.Configuration.GetSection("TokenOption"));
 var tokenOptions = builder.Configuration.GetSection("TokenOption").Get<CustomTokenOptions>();
 
 builder.Services.AddCustomTokenAuth(tokenOptions);
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("BakuPolicy", policy =>
+    {
+        policy.RequireClaim("City", "Baku");
+    });
+    options.AddPolicy("AgePolicy", policy =>
+    {
+        policy.Requirements.Add(new BirthDayRequirement(18));
+    });
+});
 
 
 
